@@ -86,7 +86,9 @@ function Convert-SerializerResult {
     if ($null -eq $o) { return $null }
     if ($o -is [System.Collections.Generic.Dictionary[string,object]]) {
         $h = @{}
-        foreach ($kv in $o) { $h[$kv.Key] = Convert-SerializerResult $kv.Value }
+        # foreach по словарю в PowerShell не перебирает пары, поэтому — явный перечислитель
+        $en = $o.GetEnumerator()
+        while ($en.MoveNext()) { $kv = $en.Current; $h[[string]$kv.Key] = Convert-SerializerResult $kv.Value }
         return $h
     }
     if ($o -is [object[]]) {
